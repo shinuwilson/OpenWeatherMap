@@ -70,3 +70,41 @@ function getWeatherByCoords(lat, lon) {
   loadCurrent(cw);
   loadForecast(fc);
 }
+
+async function loadCurrent(url) {
+  showLoading(weatherBox);
+  try {
+    const data = await fetchJSON(url);
+
+    // If API returned cod not equal to 200 inside JSON (rare for this endpoint)
+    if (data.cod && parseInt(data.cod) !== 200) {
+      throw new Error(data.message || "City not found");
+    }
+
+    const { name } = data;
+    const { temp, humidity } = data.main;
+    const wind = data.wind?.speed;
+    const { description, icon } = data.weather[0];
+
+    weatherBox.innerHTML = `
+      <h2>${name}</h2>
+      <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${description}">
+      <p><strong>Temperature:</strong> ${Math.round(temp)}°C</p>
+      <p><strong>Condition:</strong> ${description}</p>
+      <p><strong>Humidity:</strong> ${humidity}%</p>
+      <p><strong>Wind Speed:</strong> ${wind} m/s</p>
+    `;
+    changeBackground(description);
+  } catch (err) {
+    console.error(err);
+    showError(err.message.includes("Invalid API key")
+      ? "Your API key is invalid or not active yet. Check it in OpenWeather > My API keys."
+      : err.message || "Failed to load weather.");
+  }
+}
+
+async function loadForecast(url) {
+  forecastTitle.textContent = "";
+  showLoading(forecastBox);
+  try {
+    const data = await fetchJSON(url);
