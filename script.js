@@ -108,3 +108,36 @@ async function loadForecast(url) {
   showLoading(forecastBox);
   try {
     const data = await fetchJSON(url);
+
+    // Forecast returns cod as a string
+    if (String(data.cod) !== "200") {
+      throw new Error(data.message || "Could not load forecast.");
+    }
+
+    forecastTitle.textContent = "5-Day Forecast";
+    forecastBox.innerHTML = "";
+
+    // Pick entries at 12:00:00 each day
+    const daily = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+
+    daily.forEach(day => {
+      const date = new Date(day.dt_txt).toLocaleDateString();
+      const { description, icon } = day.weather[0];
+      const t = Math.round(day.main.temp);
+      const card = document.createElement("div");
+      card.className = "forecast-day";
+      card.innerHTML = `
+        <p><strong>${date}</strong></p>
+        <img src="https://openweathermap.org/img/wn/${icon}.png" alt="${description}">
+        <p>${t}°C</p>
+        <p>${description}</p>
+      `;
+      forecastBox.appendChild(card);
+    });
+  } catch (err) {
+    console.error(err);
+    forecastBox.innerHTML = "";
+    forecastTitle.textContent = "";
+    // Keep current weather visible even if forecast fails
+  }
+}
