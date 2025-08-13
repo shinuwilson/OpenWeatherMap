@@ -39,3 +39,19 @@ function changeBackground(desc = "") {
   else if (d.includes("clear")) body.style.background = "#81d4fa";
   else body.style.background = "#e0f7fa";
 }
+
+// Generic fetch with good errors
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); } catch {
+    throw new Error(`Bad JSON from server: ${text}`);
+  }
+  // Some OWM endpoints return HTTP 200 but cod:"404" inside the JSON
+  if (!res.ok) {
+    const msg = data && data.message ? data.message : res.statusText;
+    throw new Error(`HTTP ${res.status}: ${msg}`);
+  }
+  return data;
+}
