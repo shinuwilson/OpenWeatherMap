@@ -55,3 +55,18 @@ async function fetchJSON(url) {
   }
   return data;
 }
+
+// API calls
+function getWeatherByCity(city) {
+  const cw = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+  const fc = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+  loadCurrent(cw);
+  loadForecast(fc);
+}
+
+function getWeatherByCoords(lat, lon) {
+  const cw = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+  const fc = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+  loadCurrent(cw);
+  loadForecast(fc);
+}
